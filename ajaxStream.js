@@ -7,37 +7,36 @@ const cities = [
     "Houston"
 ];
 
-
-function CityLookup () {
-    let _observer;
-
-    return {
-        observerCreator: function (observer) {
-            _observer = observer;
-        },
-        lookupCity: function (city) {
-            getCityWeather(city)
-                .then(HTTP_response => HTTP_response.json() )
-                .then( JSON_response => _observer.next(JSON_response))
-                .catch( err=> _observer.error(err));
-        }
-    }
-
-}
-const CITYLOOKUP = new CityLookup();
+//
+// function CityLookup () {
+//     let _observer = new AJAXObeserverStream();
+//
+//     return {
+//         observerCreator: function (observer) {
+//             _observer = observer;
+//         },
+//         lookupCity: function (city) {
+//             getCityWeather(city)
+//                 .then(HTTP_response => HTTP_response.json() )
+//                 .then( JSON_response => _observer.next(JSON_response))
+//                 .catch( err=> _observer.error(err));
+//         }
+//     }
+//
+// }
+// const CITYLOOKUP = new CityLookup();
 const API_KEY = "049bf60658d7ef8e17926cb7af4eb07c";
+const AJAXStream = new AJAXObserverStream();
 
 function getCityWeather(city) {
-    return fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`)
-        //.then(res => res.json())
+    return AJAXStream.dispatch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`)
 }
 
-const AJAXObserver = Observable.create(
-    CITYLOOKUP.observerCreator
-);
+// const AJAXObserver = Observable.create(
+//     CITYLOOKUP.observerCreator
+// );
 
-const AJAXStream = AJAXObserver.pipe(publish())
-cities.forEach(city => CITYLOOKUP.lookupCity(city));
+cities.forEach(city => getCityWeather(city));
 
 
 
@@ -49,8 +48,6 @@ const subscription1 = AJAXStream.subscribe(
     val=> $("#root").append(`<div><h1>${val.name}</h1><p>${val.main.temp} K</p></div>`),
     err=>console.error("gots an error:",err)
     );
-
-AJAXStream.connect();
 
 
 const hotCities = AJAXStream.pipe(filter( item => (parseInt(item.main.temp) >= 303)));
