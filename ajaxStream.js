@@ -1,12 +1,30 @@
 const { Observable, Subject, ReplaySubject, from, of, range } = rxjs;
-const { map, filter, switchMap ,scan, fromPromise} = rxjs.operators;
+const { map, filter, switchMap ,scan, publish} = rxjs.operators;
 
 const cities = [
     "Minneapolis",
-    "Chicago"
+    "Chicago",
+    "Houston"
 ];
 
 
+function CityLookup () {
+    let _observer;
+
+    return {
+        observerCreator: function (observer) {
+            _observer = observer;
+        },
+        lookupCity: function (city) {
+            getCityWeather(city)
+                .then(HTTP_response => HTTP_response.json() )
+                .then( JSON_response => _observer.next(JSON_response))
+                .catch( err=> _observer.error(err));
+        }
+    }
+
+}
+const CITYLOOKUP = new CityLookup();
 const API_KEY = "049bf60658d7ef8e17926cb7af4eb07c";
 
 function getCityWeather(city) {
@@ -14,47 +32,37 @@ function getCityWeather(city) {
         //.then(res => res.json())
 }
 
-const AJAXStream = Observable.create(
-    observer => {
-        cities.forEach(city=>{
-            console.log("Sending req for ", city);
-            getCityWeather(city).then(
-                HTTPres => {
-                    if (HTTPres.ok) {
-                        HTTPres.json()
-                            .then(JSONres =>{
-                                    console.log("Receiving req for ", city);
-
-                                    observer.next(res)
-
-                                });
-                    }
-                    else {
-                        observer.error(HTTPres)
-                    }
-
-                });
-        })
-    }
+const AJAXObserver = Observable.create(
+    CITYLOOKUP.observerCreator
 );
 
-const subscription = AJAXStream.subscribe(val=>console.log("Yay: ", val));
-
-// getCityWeather("Minneapolis");
-// range(1, 200)
-//   .pipe(filter(x => x % 2 === 1), map(x => x + x))
-//   .subscribe(x => console.log(x));
+const AJAXStream = AJAXObserver.pipe(publish())
+cities.forEach(city => CITYLOOKUP.lookupCity(city));
 
 
-// var source = range(1,30)
-//     .pipe(
-//     scan(
-//         (acc, x) => {
-//             return acc + x;
-//         })
-//     );
 
-// var subscription = source.subscribe(
-//     function (x) { console.log('Next: ' + x); },
-//     function (err) { console.log('Error: ' + err); },
-//     function () { console.log('Completed'); });
+const subscription2 = AJAXStream.subscribe(
+    val=> console.log("Stream Complete for ", val.name, ": ", val),
+    err=>console.error("gots an error:",err)
+);
+const subscription1 = AJAXStream.subscribe(
+    val=> $("#root").append(`<div><h1>${val.name}</h1><p>${val.main.temp} K</p></div>`),
+    err=>console.error("gots an error:",err)
+    );
+
+AJAXStream.connect();
+
+
+const hotCities = AJAXStream.pipe(filter( item => (parseInt(item.main.temp) >= 303)));
+
+const hotSub = hotCities.subscribe(
+    val=> $("#hot-cities").append(`<p style="color:red">${val.name} is HOOOTTTTT!!!!!</p>`)
+);
+
+
+$(document).ready(function() {
+    $("#submitter").click(function() {
+
+        CITYLOOKUP.lookupCity($("#city-name").val().trim());
+    })
+});
