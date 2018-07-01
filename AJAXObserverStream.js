@@ -1,4 +1,4 @@
-/* !~Must have rxjs installed to work [https://rxjs-dev.firebaseapp.com/]~!
+/** !~Must have rxjs installed to work [https://rxjs-dev.firebaseapp.com/ ]~!
  *
  * The Observer Stream object creates a stream of observable items.
  *
@@ -9,12 +9,13 @@
  *
  * const OS = new ObserverStream()
  * OS.subscribe( val => console.log(val)) //set up a simple consumer that just logs all items
- *
+
  * OS.dispatch(observer=> {
  *  observer.next(1); //dispatch a 1
  *  observer.next(2); //dispatch a 2
  *  observer.next(3); //dispatch a 3
  * });
+ * </code>```
 */
 
 const throwError = err => {
@@ -54,18 +55,33 @@ class ObserverStream  {
     };
     //to send a dispatch, call dispatch with a function that receives the observer.
     dispatch  (item) {
-
-        return item(this._observer);
+        if (typeof item === "object" && item.hasOwnProperty("type")) return this._observer.next(item);
+        else if (typeof item==="function") return item(this._observer);
+        else {
+            throwError("Cannot dispatch item.");
+        }
     };
+    // call pipe with arbitrary arguments, it will just pass it along
     pipe () {
         return this._publishedStream.pipe.apply(this._publishedStream, arguments);
     };
     filter (filterFunc) {
-        const { filter } = rxjs.operators;
-
-        return this.pipe(filter(filterFunc));
+        return this.pipe(rxjs.operators.filter(filterFunc));
     };
-    // call pipe with arbitrary arguments
+    //allow another observable to push events into this observable
+
+    merge () {
+        [].forEach.call(arguments, //since arguments is not an array, use a clever hack to call forEach
+            OtherObservable =>
+                OtherObservable.subscribe(
+                    item => {this._observer.next(item)},
+                    err => {this._observer.error(err)},
+                    comp => {console.log("Ending subscription")}
+                )
+        )
+    }
+
+
 
 }
  /*
