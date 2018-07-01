@@ -16,7 +16,10 @@
  *  observer.next(3); //dispatch a 3
  * });
 */
-//todo: Level up in abastraction to create a factory for arbitrary event listeners, not just AJAX events
+
+const throwError = err => {
+    throw err;
+};
 
 class ObserverStream  {
     //_observer = false;
@@ -26,7 +29,9 @@ class ObserverStream  {
 
         this._observer =false;
 
-        const _observerCreator = observer => (this._observer? console.error("Attempting to overwrite observer") : this._observer = observer);
+        //when creating creating an Observable, we need to pass a function that receives an observer.
+        //For this class, we just save that observer so we can dispatch on it at an arbitrary time (or, throw an error if for some reason this is getting recreated)
+        const _observerCreator = observer => (this._observer? throwError("Attempt to overwrite observer") : this._observer = observer);
 
         const _observable       = Observable.create(_observerCreator);      // create the  observable
         this._publishedStream  = _observable.pipe(publish());               // publish the stream so that it can be subscribed to multiple times
@@ -65,13 +70,13 @@ class ObserverStream  {
 }
  /*
  * To use this, instantiate with no parameters.
- *      const AJAXStream = new AJAXObserverStream();
+ *      const City_search = new AJAXObserverStream();
  *
  * use the dispatch method to send a fetch:
- *      AJAXStream.dispatch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`, params)
+ *      City_search.dispatch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`, params)
  *
  * To subscribe to events:
- *      AJAXStream.subscribe(
+ *      City_search.subscribe(
  *          val=> console.log("Fetch Complete for ", val.name, ": ", val),
  *          err=>console.error("gots an error:",err)
  *      );
