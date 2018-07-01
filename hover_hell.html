@@ -9,7 +9,9 @@
             flex-wrap: wrap;
         }
         .hoverable {}
-        .timer {}
+        .timer {
+            background-color: lightcoral;
+        }
         div {
             width: 14em;
             height: 5em;
@@ -19,6 +21,9 @@
             flex-direction: row;
             padding: 2em;
         }
+        .hovered {
+            background-color:  rebeccapurple;
+        }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -27,19 +32,23 @@
     <script src="hover_hell.js"></script>
 </head>
 <body>
+<section id="total-section">
+    <h1>Total Hovers: </h1><p id="total-hovers">0</p>
+    <h1>Total Timer Ticks: </h1><p id="total-ticks">0</p>
+    <h1>Total Events: </h1><p id="total-events">0</p>
+</section>
 
+    <div class="timer" id="timer1">Timer 1<p></p></div>
+    <div class="timer" id="timer2">Timer 2<p></p></div>
+    <div class="timer" id="timer3">Timer 3<p></p></div>
 
-    <div class="timer" id="timer1">Timer 1</div>
-    <div class="timer" id="timer2">Timer 2</div>
-    <div class="timer" id="timer3">Timer 3</div>
-
-    <div class="hoverable" id="1">Hover 1</div>
-    <div class="hoverable" id="2">Hover 2</div>
-    <div class="hoverable" id="3">Hover 3</div>
-    <div class="hoverable" id="4">Hover 4</div>
-    <div class="hoverable" id="5">Hover 5</div>
-    <div class="hoverable" id="6">Hover 6</div>
-    <div class="hoverable" id="7">Hover 7</div>
+    <div class="hoverable" id="hover-1">Hover 1</div>
+    <div class="hoverable" id="hover-2">Hover 2</div>
+    <div class="hoverable" id="hover-3">Hover 3</div>
+    <div class="hoverable" id="hover-4">Hover 4</div>
+    <div class="hoverable" id="hover-5">Hover 5</div>
+    <div class="hoverable" id="hover-6">Hover 6</div>
+    <div class="hoverable" id="hover-7">Hover 7</div>
 
 </body>
 </html>

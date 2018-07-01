@@ -60,15 +60,25 @@ class ObserverStream  {
             throwError("Cannot dispatch item.");
         }
     };
+    // call pipe with arbitrary arguments, it will just pass it along
     pipe () {
         return this._publishedStream.pipe.apply(this._publishedStream, arguments);
     };
     filter (filterFunc) {
-        const { filter } = rxjs.operators;
-
-        return this.pipe(filter(filterFunc));
+        return this.pipe(rxjs.operators.filter(filterFunc));
     };
-    // call pipe with arbitrary arguments
+    //allow another observable to push events into this observable
+
+    merge (OtherObservable) {
+        OtherObservable.subscribe(
+            item => {this._observer.next(item)},
+            err => {this._observer.error(err)},
+            comp => {this._observer.error(err)}
+        )
+
+    }
+
+
 
 }
  /*

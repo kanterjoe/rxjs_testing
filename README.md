@@ -29,3 +29,8 @@ The city search app is a simple example of using ReactiveX to mix DOM events and
 To use, open the HTML in the browser and enter a City name. Press enter and see the result pop up. Try finding a city where it is currently Hot out!
  
  [Open in Browser][citysearch]
+ 
+ ## Hover Hell
+ 
+ 
+ 
