@@ -54,8 +54,11 @@ class ObserverStream  {
     };
     //to send a dispatch, call dispatch with a function that receives the observer.
     dispatch  (item) {
-
-        return item(this._observer);
+        if (typeof item === "object" && item.hasOwnProperty("type")) return this._observer.next(item);
+        else if (typeof item==="function") return item(this._observer);
+        else {
+            throwError("Cannot dispatch item.");
+        }
     };
     pipe () {
         return this._publishedStream.pipe.apply(this._publishedStream, arguments);

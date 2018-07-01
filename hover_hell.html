@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hover Hell</title>
+    <style>
+        body {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .hoverable {}
+        .timer {}
+        div {
+            width: 14em;
+            height: 5em;
+            background-color: cyan;
+            margin: 1em;
+            display: flex;
+            flex-direction: row;
+            padding: 2em;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/rxjs/bundles/rxjs.umd.min.js"></script>
+    <script src="AJAXObserverStream.js"></script>
+    <script src="hover_hell.js"></script>
+</head>
+<body>
+
+
+    <div class="timer" id="timer1">Timer 1</div>
+    <div class="timer" id="timer2">Timer 2</div>
+    <div class="timer" id="timer3">Timer 3</div>
+
+    <div class="hoverable" id="1">Hover 1</div>
+    <div class="hoverable" id="2">Hover 2</div>
+    <div class="hoverable" id="3">Hover 3</div>
+    <div class="hoverable" id="4">Hover 4</div>
+    <div class="hoverable" id="5">Hover 5</div>
+    <div class="hoverable" id="6">Hover 6</div>
+    <div class="hoverable" id="7">Hover 7</div>
+
+</body>
+</html>

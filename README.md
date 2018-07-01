@@ -1,6 +1,6 @@
 [rxlogo]: http://reactivex.io/assets/Rx_Logo_S.png
 [citysearch]: https://kanterjoe.github.io/rxjs_testing/city_search.html
-#![][rxlogo] ReactiveX JS Testing 
+# ![][rxlogo] ReactiveX JS Testing 
 
 
 I recently found the [ReactiveX](http://reactivex.io/) paradigm, and liked it's style. 
