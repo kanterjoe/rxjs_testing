@@ -7,34 +7,14 @@ const cities = [
     "Houston"
 ];
 
-//
-// function CityLookup () {
-//     let _observer = new AJAXObeserverStream();
-//
-//     return {
-//         observerCreator: function (observer) {
-//             _observer = observer;
-//         },
-//         lookupCity: function (city) {
-//             getCityWeather(city)
-//                 .then(HTTP_response => HTTP_response.json() )
-//                 .then( JSON_response => _observer.next(JSON_response))
-//                 .catch( err=> _observer.error(err));
-//         }
-//     }
-//
-// }
-// const CITYLOOKUP = new CityLookup();
 const API_KEY = "049bf60658d7ef8e17926cb7af4eb07c";
-const AJAXStream = new AJAXObserverStream();
+let AJAXStream = new AJAXObserverStream();
+
+console.log("Created obs stream: ", AJAXStream)
 
 function getCityWeather(city) {
     return AJAXStream.dispatch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`)
 }
-
-// const AJAXObserver = Observable.create(
-//     CITYLOOKUP.observerCreator
-// );
 
 cities.forEach(city => getCityWeather(city));
 
@@ -50,7 +30,7 @@ const subscription1 = AJAXStream.subscribe(
     );
 
 
-const hotCities = AJAXStream.pipe(filter( item => (parseInt(item.main.temp) >= 303)));
+const hotCities = AJAXStream.filter( item => (parseInt(item.main.temp) >= 303) );
 
 const hotSub = hotCities.subscribe(
     val=> $("#hot-cities").append(`<p style="color:red">${val.name} is HOOOTTTTT!!!!!</p>`)
@@ -60,6 +40,7 @@ const hotSub = hotCities.subscribe(
 $(document).ready(function() {
     $("#submitter").click(function() {
 
-        CITYLOOKUP.lookupCity($("#city-name").val().trim());
+        getCityWeather($("#city-name").val().trim());
+
     })
 });

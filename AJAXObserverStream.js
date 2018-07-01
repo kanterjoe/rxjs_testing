@@ -1,6 +1,115 @@
+/* !~Must have rxjs installed to work [https://rxjs-dev.firebaseapp.com/]~!
+ *
+ * The Observer Stream object creates a stream of observable items.
+ *
+ * It is essentially a wrapper around the RX Observable class that saves the observable internally so I don't have to remember the exact syntax.
+ *
+ * It is meant to be extended, but works standalone as well:
+ *
+ *
+ * const OS = new ObserverStream()
+ * OS.subscribe( val => console.log(val)) //set up a simple consumer that just logs all items
+ *
+ * OS.dispatch(observer=> {
+ *  observer.next(1); //dispatch a 1
+ *  observer.next(2); //dispatch a 2
+ *  observer.next(3); //dispatch a 3
+ * });
+*/
+//todo: Level up in abastraction to create a factory for arbitrary event listeners, not just AJAX events
+
+class ObserverStream  {
+    //_observer = false;
+    constructor() {
+        const {publish, filter} = rxjs.operators;
+        const { Observable } = rxjs;
+
+        this._observer =false;
+
+        const _observerCreator = observer => (this._observer? console.error("Attempting to overwrite observer") : this._observer = observer);
+
+        const _observable       = Observable.create(_observerCreator);      // create the  observable
+        this._publishedStream  = _observable.pipe(publish());               // publish the stream so that it can be subscribed to multiple times
+
+        this._publishedStream.connect();                                    // if you don't connect the stream, it can't receive events
 
 
-let AJAXObserverStream =   function () {
+        //Set up some public functions
+        //this.filter  = filterFunc    => this.pipe(filter(filterFunc));
+        this.split = this.pipe
+    }
+
+
+    destroy() {
+        return this._observer.complete();
+    }
+
+    subscribe   (onNext, onError, onComplete) {
+        return this._publishedStream.subscribe(onNext, onError, onComplete);
+    };
+    //to send a dispatch, call dispatch with a function that receives the observer.
+    dispatch  (item) {
+
+        return item(this._observer);
+    };
+    pipe () {
+        return this._publishedStream.pipe.apply(this._publishedStream, arguments);
+    };
+    filter (filterFunc) {
+        const { filter } = rxjs.operators;
+
+        return this.pipe(filter(filterFunc));
+    };
+    // call pipe with arbitrary arguments
+
+}
+ /*
+ * To use this, instantiate with no parameters.
+ *      const AJAXStream = new AJAXObserverStream();
+ *
+ * use the dispatch method to send a fetch:
+ *      AJAXStream.dispatch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`, params)
+ *
+ * To subscribe to events:
+ *      AJAXStream.subscribe(
+ *          val=> console.log("Fetch Complete for ", val.name, ": ", val),
+ *          err=>console.error("gots an error:",err)
+ *      );
+ *
+ * @constructor
+ * @method subscribe (onNext, onError, onComplete) => adds a subscription to the observer
+ *
+ */
+
+class AJAXObserverStream extends ObserverStream {
+
+    dispatch (url, parameters) {
+        console.log("Dispatching with: ", url, parameters)
+        super.dispatch( (observer) => {
+
+            return fetch(url, parameters)
+                .then( HTTP_response => HTTP_response.json() )
+                .then( JSON_response => observer.next(JSON_response))
+            //.catch( err=> observer.error(err));
+
+        })
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+let AJAXObserverStream = function () {
     const {publish, filter} = rxjs.operators;
     const { Observable } = rxjs;
 
@@ -16,7 +125,7 @@ let AJAXObserverStream =   function () {
     const _subscribe = function (onNext, onError, onComplete) {
         return _publishedStream.subscribe(onNext, onError, onComplete);
     };
-    const _dispatch = function (url, parameters) {
+    const _dispatch = function (url, parameters) { //sends an HTTP fetch request and attaches it to the observable
         return fetch(url, parameters)
             .then( HTTP_response => HTTP_response.json() )
             .then( JSON_response => _observer.next(JSON_response))
@@ -35,17 +144,11 @@ let AJAXObserverStream =   function () {
         destroy: _destroy,
 
 
-        subscribe: _subscribe,
-        dispatch : _dispatch,
-        pipe     : _pipe,
+        subscribe   : _subscribe,
+        dispatch    : _dispatch,
+        pipe        : _pipe,
+        split       : _pipe,
     }
 
 };
-
-/*
-const AJAXObserver = Observable.create(
-    CITYLOOKUP.observerCreator
-);
-
-const AJAXStream = AJAXObserver.pipe(publish())
- */
+*/
